@@ -48,7 +48,7 @@ Thank you all for your attention! We are actively cleaning our technical report,
 <img src="assets/insight.png" width="88%">
 </p>
 
-**🔥🔥🔥 **The goal of an I2I editing or inpainting task** is to perform a one-time visual modification on a given image, with the **focus on transforming that specific image into the desired result**. In contrast, **PureCC** aims to **teach the model a new concept**. Moreover, compared with other concept customization methods, it not only emphasizes concept fidelity, but also highlights **“pure learning”** — learning only the target concept itself while** minimizing disruption to the original model’s behavior, distribution, and capabilities**.
+🔥🔥🔥 **The goal of an I2I editing or inpainting task** is to perform a one-time visual modification on a given image, with the **focus on transforming that specific image into the desired result**. In contrast, **PureCC** aims to **teach the model a new concept**. Moreover, compared with other concept customization methods, it not only emphasizes concept fidelity, but also highlights **“pure learning”** — learning only the target concept itself while **minimizing disruption to the original model’s behavior, distribution, and capabilities**.
 
 ### 🥥 Pipeline
 
