@@ -79,7 +79,7 @@ huggingface-cli download stabilityai/stable-diffusion-3.5-medium \
 Our inference code is similar to that of regular LoRA SD inference.
 
 ##### Quick Start
-
+```
 import torch
 from diffusers import DiffusionPipeline
 from peft import PeftModel
@@ -94,7 +94,7 @@ pipe = pipe.to("cuda")
 prompt = "a photo of sks robot toy on a wooden table"
 image  = pipe(prompt=prompt, generator=torch.manual_seed(42)).images[0]
 image.save("output.png")
-
+```
 
 #### Training
 
