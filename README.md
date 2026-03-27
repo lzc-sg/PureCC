@@ -20,6 +20,7 @@ Kling Team, Kuaishou Technology · University of Exeter · S-lab, Nanyang Techno
 
 ##  🔥 News
 
+- [x] **`2026/03/27`**: 🔥 We have released the training and inference code on GitHub. Feel free to try it out!
 - [x] **`2026/03/08`**: 🔥 We released the technical report on [arXiv](https://arxiv.org/abs/2603.07561).
 - [x] **`2026/02/21`**: 🔥 PureCC was accepted by CVPR 2026.
 
@@ -27,7 +28,7 @@ Kling Team, Kuaishou Technology · University of Exeter · S-lab, Nanyang Techno
 ## 🌏 Open Source
 Thank you all for your attention! We are actively cleaning our technical report, models, and codes, and we will open source them soon.
 - [x] Technical Paper on [arXiv](https://arxiv.org/abs/2603.07561)
-- [ ] Training and Inference code on GitHub
+- [x] Training and Inference code on GitHub
 
 
 
@@ -98,9 +99,9 @@ image.save("output.png")
 
 ### Training
 
-#### Step 1: Representation Extractor — Regular LoRA Training
+#### Step 1: Representation Extractor — LoRA Training
 
-In the first stage, we train a standard DreamBooth LoRA on the target subject to build a subject-specific representation extractor. This follows the official [diffusers DreamBooth LoRA for SD3](https://github.com/huggingface/diffusers/blob/main/examples/dreambooth/README_sd3.md) training recipe.
+In the first stage, we train a LoRA on the target concept to build a specific representation extractor. This follows the official [diffusers DreamBooth LoRA for SD3](https://github.com/huggingface/diffusers/blob/main/examples/dreambooth/README_sd3.md) training recipe.
 
 First, install the required dependencies:
 ```
@@ -133,8 +134,8 @@ accelerate launch examples/dreambooth/train_dreambooth_lora_sd3.py \
   --seed=0
 ```
 
-#### Step 2: Incremental Prior Fine-Tuning — PureCC Training
-In the second stage, we introduce an incremental prior loss guided by the Stage 1 reference model to prevent language drift and subject overfitting.
+#### Step 2: Pure Learning — PureCC Training
+In the second stage, we introduce a PureCC loss to prevent disruption to the original model’s behavior and capabilities.
 
 ```
 accelerate launch train_stage2_v2_sd3.py \
