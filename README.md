@@ -50,11 +50,11 @@ Thank you all for your attention! We are actively cleaning our technical report,
 
 🔥🔥🔥 ***The goal of an I2I editing or inpainting task*** is to perform a one-time visual modification on a given image, with the ***focus on transforming that specific image into the desired result***. In contrast, ***PureCC*** aims to ***teach the model a new concept***. Moreover, compared with other concept customization methods, it not only emphasizes concept fidelity, but also highlights ***“pure learning”*** — learning only the target concept itself while ***minimizing disruption to the original model’s behavior, distribution, and capabilities***.
 
-### 📕 Code
+## 📕 Code
 
-#### Checkpoint Preparation
+### Checkpoint Preparation
 
-##### Stable Diffusion 3.5 Medium
+#### Stable Diffusion 3.5 Medium
 
 This base model is from [Stable Diffusion 3.5 Medium](https://huggingface.co/stabilityai/stable-diffusion-3.5-medium).
 
@@ -75,10 +75,10 @@ huggingface-cli download stabilityai/stable-diffusion-3.5-medium \
     --local-dir /path/to/SD3.5-medium
 ```
 
-#### Inference
+### Inference
 Our inference code is similar to that of regular LoRA SD inference.
 
-##### Quick Start
+#### Quick Start
 ```
 import torch
 from diffusers import DiffusionPipeline
@@ -96,9 +96,9 @@ image  = pipe(prompt=prompt, generator=torch.manual_seed(42)).images[0]
 image.save("output.png")
 ```
 
-#### Training
+### Training
 
-##### Step 1: Representation Extractor — Regular LoRA Training
+#### Step 1: Representation Extractor — Regular LoRA Training
 
 In the first stage, we train a standard DreamBooth LoRA on the target subject to build a subject-specific representation extractor. This follows the official [diffusers DreamBooth LoRA for SD3](https://github.com/huggingface/diffusers/blob/main/examples/dreambooth/README_sd3.md) training recipe.
 
@@ -133,7 +133,7 @@ accelerate launch examples/dreambooth/train_dreambooth_lora_sd3.py \
   --seed=0
 ```
 
-##### Step 2: Incremental Prior Fine-Tuning — PureCC Training
+#### Step 2: Incremental Prior Fine-Tuning — PureCC Training
 In the second stage, we introduce an incremental prior loss guided by the Stage 1 reference model to prevent language drift and subject overfitting.
 
 ```
