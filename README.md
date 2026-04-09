@@ -101,7 +101,7 @@ image.save("output.png")
 
 #### Step 1: Representation Extractor — LoRA Training
 
-In the first stage, we train a LoRA on the target concept to build a specific representation extractor. This follows the official [diffusers DreamBooth LoRA for SD3](https://github.com/huggingface/diffusers/blob/main/examples/dreambooth/README_sd3.md) training recipe.
+In the first stage, we train a LoRA on the target concept to build a specific representation extractor.
 
 First, install the required dependencies:
 ```
@@ -112,33 +112,34 @@ pip install -r examples/dreambooth/requirements_sd3.txt
 ```
 
 Then launch Stage 1 training:
-```
-export MODEL_NAME="stabilityai/stable-diffusion-3-medium-diffusers"
-export INSTANCE_DIR="/path/to/subject/images"
-export OUTPUT_DIR="./output/base_ckpt/robot_toy"
 
-accelerate launch examples/dreambooth/train_dreambooth_lora_sd3.py \
+```bash
+export MODEL_NAME="/path/to/SD3.5-medium"
+export DATA_PATH="/path/to/dataset"
+export OUTPUT_DIR="./output/base_ckpt"
+
+accelerate launch train_stage1_sd3.py \
   --pretrained_model_name_or_path=$MODEL_NAME \
-  --instance_data_dir=$INSTANCE_DIR \
+  --data_path=$DATA_PATH \
+  --csv_name=robot_toy.csv \
   --output_dir=$OUTPUT_DIR \
-  --mixed_precision="bf16" \
-  --instance_prompt="a photo of sks robot toy" \
-  --resolution=512 \
-  --train_batch_size=1 \
-  --gradient_accumulation_steps=4 \
-  --learning_rate=4e-4 \
-  --lr_scheduler="constant" \
-  --lr_warmup_steps=0 \
-  --max_train_steps=1000 \
+  --new_concept_token="<new1>" \
+  --embedding_lr=5e-3 \
+  --learning_rate=1e-4 \
   --rank=4 \
+  --resolution=512 \
+  --train_batch_size=4 \
+  --max_train_steps=400 \
+  --mixed_precision=bf16 \
   --seed=0
 ```
+The word of the layer-wise embedding is initialized with a similar word in semantics.
 
 #### Step 2: Pure Learning — PureCC Training
 In the second stage, we introduce a PureCC loss to prevent disruption to the original model’s behavior and capabilities.
 
 ```
-accelerate launch train_stage2_v2_sd3.py \
+accelerate launch train_stage2_sd3.py \
   --pretrained_model_name_or_path /path/to/SD3.5-medium \
   --data_path /path/to/dataset \
   --csv_name robot_toy.csv \
