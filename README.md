@@ -81,20 +81,48 @@ Our inference code is similar to that of regular LoRA SD inference.
 
 #### Quick Start
 ```
+import os
 import torch
-from diffusers import DiffusionPipeline
-from peft import PeftModel
+from diffusers import StableDiffusion3Pipeline
 
-base_model_id = "stabilityai/stable-diffusion-3.5-medium"
-lora_model_id  = "/path/to/stage2/checkpoint"
+MODEL_PATH       = "/path/to/sd3.5-medium"
+STAGE1_DIR       = "/path/to/stage1_output"       # contains learned_embeds.pt
+LORA_CHECKPOINT  = "/path/to/checkpoint-1000"     # e.g. "/path/to/checkpoint-1000", or None
 
-pipe = DiffusionPipeline.from_pretrained(base_model_id, torch_dtype=torch.bfloat16)
-pipe.transformer = PeftModel.from_pretrained(pipe.transformer, lora_model_id)
-pipe = pipe.to("cuda")
+def inject_concept_token(pipeline, stage1_dir):
+    """Register stage1 learned token into CLIP-L and CLIP-G (T5 skipped)."""
+    saved = torch.load(os.path.join(stage1_dir, "learned_embeds.pt"), map_location="cpu")
+    token = saved["new_concept_token"]
+    print(f"concept token: '{token}'  (init from: '{saved.get('initializer_token', '?')}')")
 
-prompt = "a photo of sks robot toy on a wooden table"
-image  = pipe(prompt=prompt, generator=torch.manual_seed(42)).images[0]
-image.save("output.png")
+    for tokenizer, text_encoder, embed_key in [
+        (pipeline.tokenizer,   pipeline.text_encoder,   "embedding_one"),  # CLIP-L
+        (pipeline.tokenizer_2, pipeline.text_encoder_2, "embedding_two"),  # CLIP-G
+    ]:
+        tokenizer.add_tokens([token])
+        token_id = tokenizer.convert_tokens_to_ids(token)
+        text_encoder.resize_token_embeddings(len(tokenizer))
+        with torch.no_grad():
+            text_encoder.get_input_embeddings().weight[token_id] = \
+                saved[embed_key].to(dtype=text_encoder.dtype, device=text_encoder.device)
+
+    return token
+
+pipeline = StableDiffusion3Pipeline.from_pretrained(MODEL_PATH, torch_dtype=torch.bfloat16)
+pipeline = pipeline.to("cuda")
+concept_token = inject_concept_token(pipeline, STAGE1_DIR) 
+pipeline.load_lora_weights(LORA_CHECKPOINT)
+
+# ---- generate ------------------------------------------------------------- #
+prompt = "a photo of a [v] dog in the park".replace("[v]", concept_token)
+
+images = pipeline(
+    prompt=[prompt],
+    guidance_scale=4.0,
+    generator=torch.Generator("cuda").manual_seed(42),
+).images
+
+images[0].save("image.png")
 ```
 
 ### Training
